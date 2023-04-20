@@ -17,7 +17,7 @@ public abstract class AbstractBackgroundJob<T> : BackgroundService
         {
             await RunRecurringJob();
 
-            await Task.Delay(TimeSpan.FromMinutes(new Random().Next(60, 120)), stoppingToken);
+            await Task.Delay(TimeSpan.FromMinutes(new Random().Next(20, 90)), stoppingToken);
         }
     }
 }
