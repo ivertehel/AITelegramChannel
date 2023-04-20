@@ -1,0 +1,25 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 17
+VisualStudioVersion = 17.5.33530.505
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AiTelegramChannel.ServerHost", "AiTelegramChannel.ServerHost.csproj", "{61D9CE90-E89A-4ACC-BB9A-BC00A2D9591B}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{61D9CE90-E89A-4ACC-BB9A-BC00A2D9591B}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{61D9CE90-E89A-4ACC-BB9A-BC00A2D9591B}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{61D9CE90-E89A-4ACC-BB9A-BC00A2D9591B}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{61D9CE90-E89A-4ACC-BB9A-BC00A2D9591B}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {1966CD59-0FE4-447B-94A1-EDB9CEE5BB70}
+	EndGlobalSection
+EndGlobal
