@@ -478,3 +478,4 @@ $RECYCLE.BIN/
 
 appsettings.Local.json
 appsettings.Production.json
+session.dat
