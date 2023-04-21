@@ -1,4 +1,5 @@
 using AiTelegramChannel.ServerHost.Extensions;
+using NLog.Extensions.Logging;
 
 namespace AiTelegramChannel.ServerHost;
 
@@ -10,6 +11,11 @@ public class Program
 
         builder.Services.RegisterOptions(builder.Configuration);
         builder.Services.RegisterServices(builder.Configuration);
+        builder.Services.AddLogging(loggingBuilder =>
+        {
+            loggingBuilder.ClearProviders();
+            loggingBuilder.AddNLog(builder.Configuration);
+        });
 
         builder.Configuration
           .SetBasePath(Directory.GetCurrentDirectory())

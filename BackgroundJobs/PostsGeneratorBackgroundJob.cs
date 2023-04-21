@@ -19,12 +19,14 @@ public class PostsGeneratorBackgroundJob : AbstractBackgroundJob<PostsGeneratorB
         IOptions<PostsGeneratorBackgroundJobSettings> jobSettings, 
         IOptions<TelegramSettings> telegramSettings,
         IChatGptClient chatGptClient, 
-        ITelegramMessengerClient telegramMessengerClient)
+        ITelegramMessengerClient telegramMessengerClient,
+        ILogger<PostsGeneratorBackgroundJob> logger) : base(logger)
     {
         _jobSettings = jobSettings?.Value ?? throw new ArgumentNullException(nameof(jobSettings));
         _telegramSettings = telegramSettings?.Value ?? throw new AbandonedMutexException(nameof(telegramSettings));
         _chatGptClient = chatGptClient ?? throw new ArgumentNullException(nameof(chatGptClient));
         _telegramMessengerClient = telegramMessengerClient ?? throw new ArgumentNullException(nameof(chatGptClient));
+        _logger = logger;
     }
 
     public override async Task RunRecurringJob()
