@@ -7,10 +7,6 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <Folder Include="Data\" />
-  </ItemGroup>
-
-  <ItemGroup>
     <PackageReference Include="Betalgo.OpenAI" Version="6.8.5" />
     <PackageReference Include="Telegram.Bots" Version="5.9.0" />
   </ItemGroup>

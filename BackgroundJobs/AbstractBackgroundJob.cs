@@ -4,7 +4,7 @@ public abstract class AbstractBackgroundJob<T> : BackgroundService
 {
     protected abstract bool Enabled { get; }
 
-    public abstract Task RunRecurringJob();
+    protected abstract TimeSpan Delay { get; }
 
     protected override async Task ExecuteAsync(CancellationToken stoppingToken)
     {
@@ -17,7 +17,9 @@ public abstract class AbstractBackgroundJob<T> : BackgroundService
         {
             await RunRecurringJob();
 
-            await Task.Delay(TimeSpan.FromMinutes(new Random().Next(20, 90)), stoppingToken);
+            await Task.Delay(Delay, stoppingToken);
         }
     }
+
+    public abstract Task RunRecurringJob();
 }

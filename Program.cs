@@ -1,5 +1,4 @@
 using AiTelegramChannel.ServerHost.Extensions;
-using System.IO;
 
 namespace AiTelegramChannel.ServerHost;
 
@@ -23,7 +22,7 @@ public class Program
 
         var app = builder.Build();
 
-        app.MapGet("/", () => "Hello World!");
+        app.MapGet("/", () => "The server is working");
 
         app.Run();
     }

@@ -12,6 +12,9 @@ public class PostsGeneratorBackgroundJob : AbstractBackgroundJob<PostsGeneratorB
     private ITelegramMessengerClient _telegramMessengerClient;
     private IChatGptClient _chatGptClient;
 
+    protected override bool Enabled => _jobSettings.Enabled;
+    protected override TimeSpan Delay => TimeSpan.FromMinutes(new Random().Next(_jobSettings.DelayInMinutesFrom, _jobSettings.DelayInMinutesTo));
+
     public PostsGeneratorBackgroundJob(
         IOptions<PostsGeneratorBackgroundJobSettings> jobSettings, 
         IOptions<TelegramSettings> telegramSettings,
@@ -24,11 +27,9 @@ public class PostsGeneratorBackgroundJob : AbstractBackgroundJob<PostsGeneratorB
         _telegramMessengerClient = telegramMessengerClient ?? throw new ArgumentNullException(nameof(chatGptClient));
     }
 
-    protected override bool Enabled => _jobSettings.Enabled;
-
     public override async Task RunRecurringJob()
     {
-        var joke = await _chatGptClient.SendMessage(_jobSettings.Message);
-        await _telegramMessengerClient.SendMessage(_telegramSettings.ChatId, joke);
+        var message = await _chatGptClient.SendMessage(_jobSettings.Message);
+        await _telegramMessengerClient.SendMessage(_telegramSettings.ChatId, message);
     }
 }
