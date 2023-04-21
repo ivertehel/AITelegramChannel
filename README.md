@@ -1,5 +1,5 @@
 # AITelegramChannel
-This is .NET 7 microservice that will call ChatGPT with configured message and after that post the response to a telegram channel.
+This is .NET 6 microservice that will call ChatGPT with configured message and after that post the response to a telegram channel.
 
 ## Configuration
 Configure the appsettings.json
