@@ -30,3 +30,10 @@ PostsGeneratorBackgroundJobSettings:Enabled | Can enable/disable posts generatio
 PostsGeneratorBackgroundJobSettings:Message | Message that will be passed to the ChatGPT
 PostsGeneratorBackgroundJobSettings:DelayInMinutesFrom | Minumum delay in minutes that job will wait after posting before creating a new post
 PostsGeneratorBackgroundJobSettings:DelayInMinutesTo | Maximum delay in minutes that job will wait after posting before creating a new post
+
+## Running in Docker
+Don't forget to update appsettings.json before building an image
+
+Run `docker build -t ai-telegram-channel .` in the root directory where Dockerfile located
+
+Run `docker run -d -p 8080:80 ai-telegram-channel`
