@@ -1,4 +1,5 @@
-﻿using OpenAI.GPT3.Interfaces;
+﻿using FluentResults;
+using OpenAI.GPT3.Interfaces;
 using OpenAI.GPT3.ObjectModels;
 using OpenAI.GPT3.ObjectModels.RequestModels;
 
@@ -13,22 +14,29 @@ public class ChatGptClient : IChatGptClient
         _openAIService = openAIService;
     }
 
-    public async Task<string> SendMessage(string message)
+    public async Task<Result<string>> SendMessage(string message)
     {
-        var completionResult = await _openAIService.ChatCompletion.CreateCompletion(new ChatCompletionCreateRequest
+        try
         {
-            Messages = new List<ChatMessage>
+            var completionResult = await _openAIService.ChatCompletion.CreateCompletion(new ChatCompletionCreateRequest
+            {
+                Messages = new List<ChatMessage>
             {
                 ChatMessage.FromSystem(message),
             },
-            Model = Models.ChatGpt3_5Turbo
-        });
+                Model = Models.ChatGpt3_5Turbo
+            });
 
-        if (completionResult.Successful)
-        {
-            return string.Join(" ", completionResult.Choices.Select(s => s.Message.Content));
+            if (completionResult.Successful)
+            {
+                return string.Join(" ", completionResult.Choices.Select(s => s.Message.Content));
+            }
+
+            return Result.Fail(completionResult?.Error?.Message?.ToString());
         }
-
-        return "";
+        catch (Exception ex)
+        {
+            return Result.Fail(ex.Message);
+        }
     }
 }
