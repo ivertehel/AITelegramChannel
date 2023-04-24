@@ -1,5 +1,6 @@
 using AiTelegramChannel.ServerHost.Extensions;
 using NLog.Extensions.Logging;
+using NLog.Web;
 
 namespace AiTelegramChannel.ServerHost;
 
@@ -25,6 +26,12 @@ public class Program
         {
             builder.Configuration.AddJsonFile($"appsettings.{builder.Environment.EnvironmentName}.json", optional: true);
         }
+
+        builder.Host.ConfigureLogging(logging =>
+        {
+            logging.ClearProviders();
+            logging.SetMinimumLevel(LogLevel.Trace);
+        }).UseNLog();
 
         var app = builder.Build();
 

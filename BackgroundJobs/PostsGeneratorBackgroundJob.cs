@@ -1,4 +1,5 @@
-﻿using AiTelegramChannel.ServerHost.OpenAi;
+﻿using AiTelegramChannel.ServerHost.Imgur;
+using AiTelegramChannel.ServerHost.OpenAi;
 using AiTelegramChannel.ServerHost.Options;
 using AiTelegramChannel.ServerHost.Telegram;
 using Microsoft.Extensions.Options;
@@ -7,31 +8,54 @@ namespace AiTelegramChannel.ServerHost.BackgroundJobs;
 
 public class PostsGeneratorBackgroundJob : AbstractBackgroundJob<PostsGeneratorBackgroundJob>
 {
-    private PostsGeneratorBackgroundJobSettings _jobSettings;
-    private TelegramSettings _telegramSettings;
-    private ITelegramMessengerClient _telegramMessengerClient;
-    private IChatGptClient _chatGptClient;
+    private readonly PostsGeneratorBackgroundJobSettings _jobSettings;
+    private readonly ITelegramClient _telegramClient;
+    private readonly IChatGptClient _chatGptClient;
+    private readonly IUnsplashClient _unsplashClient;
 
     protected override bool Enabled => _jobSettings.Enabled;
     protected override TimeSpan Delay => TimeSpan.FromMinutes(new Random().Next(_jobSettings.DelayInMinutesFrom, _jobSettings.DelayInMinutesTo));
 
     public PostsGeneratorBackgroundJob(
-        IOptions<PostsGeneratorBackgroundJobSettings> jobSettings, 
-        IOptions<TelegramSettings> telegramSettings,
-        IChatGptClient chatGptClient, 
-        ITelegramMessengerClient telegramMessengerClient,
+        IOptions<PostsGeneratorBackgroundJobSettings> jobSettings,
+        IChatGptClient chatGptClient,
+        ITelegramClient telegramClient,
+        IUnsplashClient unsplashClient,
         ILogger<PostsGeneratorBackgroundJob> logger) : base(logger)
     {
         _jobSettings = jobSettings?.Value ?? throw new ArgumentNullException(nameof(jobSettings));
-        _telegramSettings = telegramSettings?.Value ?? throw new AbandonedMutexException(nameof(telegramSettings));
-        _chatGptClient = chatGptClient ?? throw new ArgumentNullException(nameof(chatGptClient));
-        _telegramMessengerClient = telegramMessengerClient ?? throw new ArgumentNullException(nameof(chatGptClient));
-        _logger = logger;
+        _chatGptClient = chatGptClient;
+        _telegramClient = telegramClient;
+        _unsplashClient = unsplashClient;
     }
 
     public override async Task RunRecurringJob()
     {
-        var message = await _chatGptClient.SendMessage(_jobSettings.Message);
-        await _telegramMessengerClient.SendMessage(_telegramSettings.ChatId, message);
+        var chatGptPostResponse = await _chatGptClient.SendMessage(_jobSettings.Message);
+
+        if (_jobSettings.GenerateImages)
+        {
+            await PostMessageWithImage(chatGptPostResponse);
+            return;
+        }
+
+        await _telegramClient.PostSimpleMessage(chatGptPostResponse);
+    }
+
+    private async Task PostMessageWithImage(string text)
+    {
+        var chatGptKeywordResponse = await _chatGptClient.SendMessage($"What this text is about in one English word: {text}");
+
+        var keyword = chatGptKeywordResponse.Replace(".", "").Split(" ").First();
+
+        var unsplashResponse = await _unsplashClient.GetRandomImageUrl(keyword);
+        if (unsplashResponse.IsFailed)
+        {
+            await _telegramClient.PostSimpleMessage(text);
+            Logger.LogError($"Unsplash returned error {unsplashResponse.Errors.First().Message}");
+            return;
+        }
+
+        await _telegramClient.PostMessageWithImage(text, new Uri(unsplashResponse.Value));
     }
 }

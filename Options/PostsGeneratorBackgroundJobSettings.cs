@@ -9,4 +9,6 @@ public class PostsGeneratorBackgroundJobSettings
     public int DelayInMinutesFrom { get; set; }
 
     public int DelayInMinutesTo { get; set; }
+
+    public bool GenerateImages { get; set; }
 }

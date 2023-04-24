@@ -24,11 +24,11 @@ public class ChatGptClient : IChatGptClient
             Model = Models.ChatGpt3_5Turbo
         });
 
-        if (completionResult.Successful)
+        if (!completionResult.Successful)
         {
-            return string.Join(" ", completionResult.Choices.Select(s => s.Message.Content));
+            throw new Exception(completionResult?.Error?.Message);
         }
 
-        return "";
+        return string.Join(" ", completionResult.Choices.Select(s => s.Message.Content));
     }
 }
