@@ -1,8 +1,32 @@
 # AITelegramChannel
+## Basic functionality
 This is .NET 6 microservice that will call ChatGPT with configured message and after that post the response to a telegram channel.
 
+## Unplash integration
+Based on response from ChatGPT it can ask ChatGPT again to provide a keyword and after that using this keyword it can call [Unplash](https://unsplash.com "Unplash") to find image by keyword. In the end it will make a post in the telegram channel with an image.
+
+## Logging
+In the nlog.config it's possible to provide connection string to the MS SQL database.
+Example of connection string:
+`Data Source=localhost;Initial Catalog=LogDb;User ID=admin;Password=admin;TrustServerCertificate=true;`
+
+But the table should be created before:
+```sql
+CREATE TABLE NLog(
+    Id int NOT NULL PRIMARY KEY IDENTITY(1,1),
+    CreatedOn datetime NOT NULL,
+    Level nvarchar(10),
+    Message nvarchar(max),
+    StackTrace nvarchar(max),
+    Exception nvarchar(max),
+    Logger nvarchar(255),
+    Url nvarchar(255)
+);
+```
+
 ## Configuration
-Configure the appsettings.json
+Example of configuration:
+appsettings.json
 ```json
 {
   "OpenAi": {
@@ -12,11 +36,16 @@ Configure the appsettings.json
     "ChatId": -1001223417913,
     "Token": "6789012345:AAF3123yp-CYoJ47-SpTJrzaXdd3aqqYrff"
   },
+  "UnsplashSettings": {
+    "BaseUrl": "https://api.unsplash.com",
+    "ClientId": ""
+  },
   "PostsGeneratorBackgroundJobSettings": {
     "Enabled": true,
     "Message": "Tell small interesting story",
     "DelayInMinutesFrom": 20,
-    "DelayInMinutesTo": 90
+    "DelayInMinutesTo": 90,
+    "GenerateImages": false
   }
 }
 ```
@@ -26,10 +55,13 @@ Setting  | Definition
 OpenAi:ApiKey | ApiKey that needs to be generated here: https://platform.openai.com/account/api-keys
 TelegramSettings:ChatId | Can be extracted using https://t.me/JsonDumpBot
 TelegramSettings:Token | Can be extracted using https://t.me/BotFather
+UnsplashSettings:BaseUrl | Base url of Unsplash according to https://unsplash.com/documentation
+UnsplashSettings:ClientId | Can be extracted from https://unsplash.com/oauth/applications
 PostsGeneratorBackgroundJobSettings:Enabled | Can enable/disable posts generation
 PostsGeneratorBackgroundJobSettings:Message | Message that will be passed to the ChatGPT
 PostsGeneratorBackgroundJobSettings:DelayInMinutesFrom | Minumum delay in minutes that job will wait after posting before creating a new post
 PostsGeneratorBackgroundJobSettings:DelayInMinutesTo | Maximum delay in minutes that job will wait after posting before creating a new post
+PostsGeneratorBackgroundJobSettings:GenerateImages | Determines if we need just a simple message in the Telegram or it should be with image
 
 ## Running in Docker
 Don't forget to update appsettings.json before building an image
