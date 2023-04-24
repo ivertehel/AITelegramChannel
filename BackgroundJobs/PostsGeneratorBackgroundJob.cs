@@ -49,12 +49,13 @@ public class PostsGeneratorBackgroundJob : AbstractBackgroundJob<PostsGeneratorB
         var keyword = chatGptKeywordResponse.Replace(".", "").Split(" ").First();
 
         var unsplashResponse = await _unsplashClient.GetRandomImageUrl(keyword);
-        if (unsplashResponse.IsSuccess)
+        if (unsplashResponse.IsFailed)
         {
-            await _telegramClient.PostMessageWithImage(text, new Uri(unsplashResponse.Value));
+            await _telegramClient.PostSimpleMessage(text);
+            Logger.LogError($"Unsplash returned error {unsplashResponse.Errors.First().Message}");
             return;
         }
 
-        await _telegramClient.PostSimpleMessage(text);
+        await _telegramClient.PostMessageWithImage(text, new Uri(unsplashResponse.Value));
     }
 }

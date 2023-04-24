@@ -18,30 +18,23 @@ public class UnsplashClient : IUnsplashClient
 
     public async Task<Result<string>> GetRandomImageUrl(string keyword)
     {
-        try
+        var options = new RestClientOptions(_unsplashSettings.BaseUrl)
         {
-            var options = new RestClientOptions(_unsplashSettings.BaseUrl)
-            {
-                MaxTimeout = -1,
-            };
+            MaxTimeout = -1,
+        };
 
-            using var client = new RestClient(options);
+        using var client = new RestClient(options);
 
-            var request = new RestRequest($"/search/photos?query={keyword}&page=1&per_page=10", Method.Get);
-            request.AddHeader("Authorization", $"Client-ID {_unsplashSettings.ClientId}");
+        var request = new RestRequest($"/search/photos?query={keyword}&page=1&per_page=10", Method.Get);
+        request.AddHeader("Authorization", $"Client-ID {_unsplashSettings.ClientId}");
 
-            var response = await client.ExecuteAsync<UnsplashResponse>(request);
+        var response = await client.ExecuteAsync<UnsplashResponse>(request);
 
-            if (response.IsSuccessful && response.Data != null)
-            {
-                return response.Data.Results[new Random().Next(0, response.Data.Results.Count-1)].Urls.Regular;
-            }
-
-            return Result.Fail($"{nameof(UnsplashClient)} returned unsuccessful response. {JsonConvert.SerializeObject(response)}");
-        }
-        catch (Exception ex)
+        if (response.IsSuccessful && response.Data != null)
         {
-            return Result.Fail(ex.Message);
+            return response.Data.Results[new Random().Next(0, response.Data.Results.Count - 1)].Urls.Regular;
         }
+
+        return Result.Fail($"{nameof(UnsplashClient)} returned unsuccessful response. {JsonConvert.SerializeObject(response)}");
     }
 }
