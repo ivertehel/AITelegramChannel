@@ -16,7 +16,7 @@ public class UnsplashClient : IUnsplashClient
         _unsplashSettings = imgurSettings?.Value ?? throw new ArgumentNullException(nameof(imgurSettings));
     }
 
-    public async Task<Result<string>> GetFirstImageUrl(string keyword)
+    public async Task<Result<string>> GetRandomImageUrl(string keyword)
     {
         try
         {
@@ -27,14 +27,14 @@ public class UnsplashClient : IUnsplashClient
 
             using var client = new RestClient(options);
 
-            var request = new RestRequest($"/search/photos?query={keyword}&page=1&per_page=1", Method.Get);
+            var request = new RestRequest($"/search/photos?query={keyword}&page=1&per_page=10", Method.Get);
             request.AddHeader("Authorization", $"Client-ID {_unsplashSettings.ClientId}");
 
             var response = await client.ExecuteAsync<UnsplashResponse>(request);
 
             if (response.IsSuccessful && response.Data != null)
             {
-                return response.Data.Results.First().Urls.Regular;
+                return response.Data.Results[new Random().Next(0, response.Data.Results.Count-1)].Urls.Regular;
             }
 
             return Result.Fail($"{nameof(UnsplashClient)} returned unsuccessful response. {JsonConvert.SerializeObject(response)}");

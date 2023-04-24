@@ -1,6 +1,7 @@
 ﻿using AiTelegramChannel.ServerHost.BackgroundJobs;
 using AiTelegramChannel.ServerHost.Imgur;
 using AiTelegramChannel.ServerHost.OpenAi;
+using AiTelegramChannel.ServerHost.Telegram;
 using OpenAI.GPT3.Extensions;
 using Telegram.Bots;
 
@@ -12,6 +13,7 @@ public static class ServiceRegistrationExtensions
     {
         services.AddTransient<IChatGptClient, ChatGptClient>();
         services.AddTransient<IUnsplashClient, UnsplashClient>();
+        services.AddTransient<ITelegramClient, TelegramClient>();
         services.AddOpenAIService(settings => { settings.ApiKey = configuration.GetValue<string>("OpenAi:ApiKey"); });
         services.AddBotClient(configuration.GetValue<string>("TelegramSettings:Token"));
 

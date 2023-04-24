@@ -4,5 +4,5 @@ namespace AiTelegramChannel.ServerHost.Imgur;
 
 public interface IUnsplashClient
 {
-    Task<Result<string>> GetFirstImageUrl(string keyword);
+    Task<Result<string>> GetRandomImageUrl(string keyword);
 }

@@ -22,9 +22,16 @@ public abstract class AbstractBackgroundJob<T> : BackgroundService
 
         while (!stoppingToken.IsCancellationRequested)
         {
-            Logger.LogInformation($"Running {typeof(T).Name} recurring job");
-            await RunRecurringJob();
-            Logger.LogInformation($"Recurring job {typeof(T).Name} executed successfully");
+            try
+            {
+                Logger.LogInformation($"Running {typeof(T).Name} recurring job");
+                await RunRecurringJob();
+                Logger.LogInformation($"Recurring job {typeof(T).Name} executed successfully");
+            }
+            catch(Exception ex)
+            {
+                Logger.LogError($"Recurring job {typeof(T).Name} failed", ex);
+            }
 
             Logger.LogInformation($"The next execution will be at {DateTime.Now.Add(Delay)}");
             await Task.Delay(Delay, stoppingToken);
