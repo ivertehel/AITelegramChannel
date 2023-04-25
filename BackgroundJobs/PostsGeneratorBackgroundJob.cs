@@ -3,6 +3,7 @@ using AiTelegramChannel.ServerHost.OpenAi;
 using AiTelegramChannel.ServerHost.Options;
 using AiTelegramChannel.ServerHost.Telegram;
 using Microsoft.Extensions.Options;
+using System.Web;
 
 namespace AiTelegramChannel.ServerHost.BackgroundJobs;
 
@@ -44,11 +45,12 @@ public class PostsGeneratorBackgroundJob : AbstractBackgroundJob<PostsGeneratorB
 
     private async Task PostMessageWithImage(string text)
     {
-        var chatGptKeywordResponse = await _chatGptClient.SendMessage($"What this text is about in one English word: {text}");
+        var chatGptQueryResponse = await _chatGptClient.SendMessage($"What this text is about in two English words: {text}");
+        Logger.LogInformation($"ChatGptClient returned following query {chatGptQueryResponse}");
 
-        var keyword = chatGptKeywordResponse.Replace(".", "").Split(" ").First();
+        var query = HttpUtility.UrlEncode(chatGptQueryResponse.Replace(".", ""));
 
-        var unsplashResponse = await _unsplashClient.GetRandomImageUrl(keyword);
+        var unsplashResponse = await _unsplashClient.GetImageUrl(query);
         if (unsplashResponse.IsFailed)
         {
             await _telegramClient.PostSimpleMessage(text);
