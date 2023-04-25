@@ -1,7 +1,7 @@
 # AITelegramChannel
 [![Telegram channel](https://icons-for-free.com/iconfiles/ico/128/messenger+social+telegram+icon-1320194696007326491.ico "Telegram channel")](https://t.me/ChatGptUAJokes "Telegram channel")
 
-[Цікаві фатки від ChatGPT](https://t.me/ChatGptUAJokes "Цікаві фатки від ChatGPT")
+[Цікаві факти від ChatGPT](https://t.me/ChatGptUAJokes "Цікаві факти від ChatGPT")
 
 ## Basic functionality
 This is .NET 6 microservice that will call ChatGPT with configured message and after that post the response to a Telegram channel.
