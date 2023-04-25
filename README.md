@@ -1,9 +1,9 @@
 # AITelegramChannel
 ## Basic functionality
-This is .NET 6 microservice that will call ChatGPT with configured message and after that post the response to a telegram channel.
+This is .NET 6 microservice that will call ChatGPT with configured message and after that post the response to a Telegram channel.
 
 ## Unplash integration
-Based on response from ChatGPT it can ask ChatGPT again to provide a keyword and after that using this keyword it can call [Unplash](https://unsplash.com "Unplash") to find image by keyword. In the end it will make a post in the telegram channel with an image.
+Based on response from ChatGPT it can ask ChatGPT again to provide a search query and after that using this search query it will call Unplash to find a related image. In the end it will make a post to the Telegram channel with an image.
 
 ## Logging
 In the nlog.config it's possible to provide connection string to the MS SQL database.
