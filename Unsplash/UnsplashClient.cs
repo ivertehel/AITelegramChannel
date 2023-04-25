@@ -1,4 +1,5 @@
-﻿using AiTelegramChannel.ServerHost.Options;
+﻿using AiTelegramChannel.ServerHost.Extensions;
+using AiTelegramChannel.ServerHost.Options;
 using AiTelegramChannel.ServerHost.Unsplash.Models;
 using FluentResults;
 using Microsoft.Extensions.Options;
@@ -10,14 +11,17 @@ namespace AiTelegramChannel.ServerHost.Imgur;
 public class UnsplashClient : IUnsplashClient
 {
     private readonly UnsplashSettings _unsplashSettings;
+    private readonly ILogger<UnsplashClient> _logger;
 
-    public UnsplashClient(IOptions<UnsplashSettings> imgurSettings)
+    public UnsplashClient(IOptions<UnsplashSettings> imgurSettings, ILogger<UnsplashClient> logger)
     {
         _unsplashSettings = imgurSettings?.Value ?? throw new ArgumentNullException(nameof(imgurSettings));
+        _logger = logger;
     }
 
     public async Task<Result<string>> GetImageUrl(string query)
     {
+        _logger.TraceEnter(argument: query);
         var options = new RestClientOptions(_unsplashSettings.BaseUrl)
         {
             MaxTimeout = -1,
@@ -32,9 +36,9 @@ public class UnsplashClient : IUnsplashClient
 
         if (response.IsSuccessful && response.Data != null)
         {
-            return response.Data.Results.First().Urls.Regular;
+            return _logger.TraceExit(result: response.Data.Results.First().Urls.Regular);
         }
 
-        return Result.Fail($"{nameof(UnsplashClient)} returned unsuccessful response. {JsonConvert.SerializeObject(response)}");
+        return _logger.TraceError(Result.Fail($"{nameof(UnsplashClient)} returned unsuccessful response. {JsonConvert.SerializeObject(response)}"));
     }
 }

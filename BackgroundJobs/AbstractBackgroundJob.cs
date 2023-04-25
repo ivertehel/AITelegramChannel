@@ -1,4 +1,6 @@
-﻿namespace AiTelegramChannel.ServerHost.BackgroundJobs;
+﻿using AiTelegramChannel.ServerHost.Extensions;
+
+namespace AiTelegramChannel.ServerHost.BackgroundJobs;
 
 public abstract class AbstractBackgroundJob<T> : BackgroundService
 {
@@ -15,8 +17,11 @@ public abstract class AbstractBackgroundJob<T> : BackgroundService
 
     protected override async Task ExecuteAsync(CancellationToken stoppingToken)
     {
+        Logger.TraceEnter();
+
         if (!Enabled)
         {
+            Logger.TraceExit();
             return;
         }
 
@@ -24,13 +29,11 @@ public abstract class AbstractBackgroundJob<T> : BackgroundService
         {
             try
             {
-                Logger.LogInformation($"Running {typeof(T).Name} recurring job");
                 await RunRecurringJob();
-                Logger.LogInformation($"Recurring job {typeof(T).Name} executed successfully");
             }
             catch(Exception ex)
             {
-                Logger.LogError($"Recurring job {typeof(T).Name} failed", ex);
+                Logger.TraceError(ex);
             }
 
             Logger.LogInformation($"The next execution will be at {DateTime.Now.Add(Delay)}");

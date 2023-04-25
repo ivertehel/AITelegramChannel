@@ -1,4 +1,5 @@
-﻿using AiTelegramChannel.ServerHost.Imgur;
+﻿using AiTelegramChannel.ServerHost.Extensions;
+using AiTelegramChannel.ServerHost.Imgur;
 using AiTelegramChannel.ServerHost.OpenAi;
 using AiTelegramChannel.ServerHost.Options;
 using AiTelegramChannel.ServerHost.Telegram;
@@ -32,21 +33,25 @@ public class PostsGeneratorBackgroundJob : AbstractBackgroundJob<PostsGeneratorB
 
     public override async Task RunRecurringJob()
     {
+        Logger.TraceEnter();
         var chatGptPostResponse = await _chatGptClient.SendMessage(_jobSettings.Message);
 
         if (_jobSettings.GenerateImages)
         {
             await PostMessageWithImage(chatGptPostResponse);
+            Logger.TraceExit();
             return;
         }
 
         await _telegramClient.PostSimpleMessage(chatGptPostResponse);
+        Logger.TraceExit();
     }
 
     private async Task PostMessageWithImage(string text)
     {
+        Logger.TraceEnter(argument: text);
+
         var chatGptQueryResponse = await _chatGptClient.SendMessage($"What this text is about in two English words: {text}");
-        Logger.LogInformation($"ChatGptClient returned following query {chatGptQueryResponse}");
 
         var query = HttpUtility.UrlEncode(chatGptQueryResponse.Replace(".", ""));
 
@@ -54,10 +59,11 @@ public class PostsGeneratorBackgroundJob : AbstractBackgroundJob<PostsGeneratorB
         if (unsplashResponse.IsFailed)
         {
             await _telegramClient.PostSimpleMessage(text);
-            Logger.LogError($"Unsplash returned error {unsplashResponse.Errors.First().Message}");
+            Logger.TraceError($"Unsplash returned error {unsplashResponse.Errors.First().Message}");
             return;
         }
 
         await _telegramClient.PostMessageWithImage(text, new Uri(unsplashResponse.Value));
+        Logger.TraceExit();
     }
 }
