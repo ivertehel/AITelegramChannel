@@ -3,6 +3,8 @@
 
 [Цікаві факти від ChatGPT](https://t.me/ChatGptUAJokes "Цікаві факти від ChatGPT")
 
+https://t.me/ChatGptUAJokes
+
 ## Basic functionality
 This is .NET 6 microservice that will call ChatGPT with configured message and after that post the response to a Telegram channel.
 
