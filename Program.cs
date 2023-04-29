@@ -1,6 +1,9 @@
 using AiTelegramChannel.ServerHost.Extensions;
+using MediatR;
+using Microsoft.OpenApi.Models;
 using NLog.Extensions.Logging;
 using NLog.Web;
+using System.Reflection;
 
 namespace AiTelegramChannel.ServerHost;
 
@@ -12,6 +15,14 @@ public class Program
 
         builder.Services.RegisterOptions(builder.Configuration);
         builder.Services.RegisterServices(builder.Configuration);
+        builder.Services.AddControllers();
+        builder.Services.AddEndpointsApiExplorer();
+        builder.Services.AddSwaggerGen(c =>
+        {
+            c.SwaggerDoc("v1", new OpenApiInfo { Title = "Ai Telegram Channel API", Version = "v1" });
+        });
+
+        builder.Services.AddMediatR(cfg => cfg.RegisterServicesFromAssemblies(Assembly.GetExecutingAssembly()));
         builder.Services.AddLogging(loggingBuilder =>
         {
             loggingBuilder.ClearProviders();
@@ -35,7 +46,18 @@ public class Program
 
         var app = builder.Build();
 
-        app.MapGet("/", () => "The server is working");
+        app.UseSwagger();
+        app.UseSwaggerUI(options =>
+        {
+            options.SwaggerEndpoint("/swagger/v1/swagger.json", "v1");
+            options.RoutePrefix = string.Empty;
+        });
+
+        app.UseRouting();
+        app.UseEndpoints(endpoint =>
+        {
+            endpoint.MapControllers();
+        });
 
         app.Run();
     }

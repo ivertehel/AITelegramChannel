@@ -9,5 +9,6 @@ public static class ServiceCollectionConfigurationExtensions
         serviceCollection.Configure<PostsGeneratorBackgroundJobSettings>(configuration.GetSection(key: nameof(PostsGeneratorBackgroundJobSettings)));
         serviceCollection.Configure<UnsplashSettings>(configuration.GetSection(key: nameof(UnsplashSettings)));
         serviceCollection.Configure<TelegramSettings>(configuration.GetSection(key: nameof(TelegramSettings)));
+        serviceCollection.Configure<ApiSettings>(configuration.GetSection(key: nameof(ApiSettings)));
     }
 }
