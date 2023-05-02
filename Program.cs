@@ -29,6 +29,8 @@ public class Program
             loggingBuilder.AddNLog(builder.Configuration);
         });
 
+        builder.Services.AddAutoMapper(AppDomain.CurrentDomain.GetAssemblies());
+
         builder.Configuration
           .SetBasePath(Directory.GetCurrentDirectory())
           .AddJsonFile("appsettings.json", optional: true, reloadOnChange: true);

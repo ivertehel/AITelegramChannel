@@ -36,7 +36,7 @@ public abstract class AbstractBackgroundJob<T> : BackgroundService
                 Logger.TraceError(ex);
             }
 
-            Logger.LogInformation($"The next execution will be at {DateTime.Now.Add(Delay)}");
+            Logger.LogDebug($"The next execution will be at {DateTime.Now.Add(Delay)}");
             await Task.Delay(Delay, stoppingToken);
         }
     }

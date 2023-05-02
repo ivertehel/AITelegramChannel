@@ -1,4 +1,5 @@
 ﻿using AiTelegramChannel.ServerHost.BackgroundJobs;
+using AiTelegramChannel.ServerHost.Cache;
 using AiTelegramChannel.ServerHost.Imgur;
 using AiTelegramChannel.ServerHost.OpenAi;
 using AiTelegramChannel.ServerHost.Telegram;
@@ -18,5 +19,8 @@ public static class ServiceRegistrationExtensions
         services.AddBotClient(configuration.GetValue<string>("TelegramSettings:Token"));
 
         services.AddHostedService<PostsGeneratorBackgroundJob>();
+        services.AddHostedService<PostPublisherBackgroundJob>();
+
+        services.AddSingleton<PublicationsCache>();
     }
 }
