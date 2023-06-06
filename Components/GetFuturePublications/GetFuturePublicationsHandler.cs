@@ -4,18 +4,19 @@ using AiTelegramChannel.ServerHost.Extensions;
 using AutoMapper;
 using FluentResults;
 using MediatR;
+using Microsoft.EntityFrameworkCore;
 
 namespace AiTelegramChannel.ServerHost.Components.GetFuturePublications;
 
 public class GetFuturePublicationsHandler : IRequestHandler<GetFuturePublicationsRequest, Result<GetFuturePublicationsResponse>>
 {
-    private readonly PublicationsCache _publicationsCache;
+    private readonly InMemoryContext _context;
     private readonly IMapper _mapper;
     private readonly ILogger<GetFuturePublicationsHandler> _logger;
 
-    public GetFuturePublicationsHandler(PublicationsCache publicationsCache, IMapper mapper, ILogger<GetFuturePublicationsHandler> logger)
+    public GetFuturePublicationsHandler(InMemoryContext context, IMapper mapper, ILogger<GetFuturePublicationsHandler> logger)
     {
-        _publicationsCache = publicationsCache;
+        _context = context;
         _mapper = mapper;
         _logger = logger;
     }
@@ -24,10 +25,14 @@ public class GetFuturePublicationsHandler : IRequestHandler<GetFuturePublication
     {
         _logger.TraceEnter();
 
+        var allPublications = await _context.Publications.OrderBy(p => p.CreatedOn).ToListAsync();
+
+        var nextPublication = allPublications.OrderBy(p => p.CreatedOn).FirstOrDefault();
+
         var response = new GetFuturePublicationsResponse
         {
-            Publications = _mapper.Map<IEnumerable<GetFuturePublicationsResponseModel>>(_publicationsCache.GetPublications()),
-            NextPublication = _mapper.Map<GetFuturePublicationsResponseModel>(_publicationsCache.NextPublication)
+            Publications = _mapper.Map<IEnumerable<GetFuturePublicationsResponseModel>>(allPublications),
+            NextPublication = _mapper.Map<GetFuturePublicationsResponseModel>(nextPublication)
         };
 
         return await _logger.TraceExit(Task.FromResult(response));

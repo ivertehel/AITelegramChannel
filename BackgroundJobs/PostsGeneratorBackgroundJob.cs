@@ -13,23 +13,22 @@ public class PostsGeneratorBackgroundJob : AbstractBackgroundJob<PostsGeneratorB
     private readonly PostsGeneratorBackgroundJobSettings _jobSettings;
     private readonly IChatGptClient _chatGptClient;
     private readonly IUnsplashClient _unsplashClient;
-    private readonly PublicationsCache _publicationsCache;
+    private readonly InMemoryContext _context;
 
     protected override bool Enabled => _jobSettings.Enabled;
     protected override TimeSpan Delay => TimeSpan.FromMinutes(_jobSettings.DelayBetweenExecutions);
-    protected TimeSpan DelayBetweenPosts => TimeSpan.FromMinutes(new Random().Next(_jobSettings.DelayInMinutesFrom, _jobSettings.DelayInMinutesTo));
 
     public PostsGeneratorBackgroundJob(
         IOptions<PostsGeneratorBackgroundJobSettings> jobSettings,
         IChatGptClient chatGptClient,
         IUnsplashClient unsplashClient,
-        PublicationsCache publicationsCache,
+        InMemoryContext context,
         ILogger<PostsGeneratorBackgroundJob> logger) : base(logger)
     {
         _jobSettings = jobSettings?.Value ?? throw new ArgumentNullException(nameof(jobSettings));
         _chatGptClient = chatGptClient;
         _unsplashClient = unsplashClient;
-        _publicationsCache = publicationsCache;
+        _context = context;
     }
 
     public override async Task RunRecurringJob()
@@ -40,15 +39,18 @@ public class PostsGeneratorBackgroundJob : AbstractBackgroundJob<PostsGeneratorB
         if (_jobSettings.GenerateImages)
         {
             await CreatePostMessageWithImage(chatGptPostResponse);
+            await _context.SaveChangesAsync();
             Logger.TraceExit();
             return;
         }
 
-        _publicationsCache.AddPublication(new PublicationModel
+        _context.Add(new PublicationEntity
         {
-            Content = chatGptPostResponse
-        },
-        DelayBetweenPosts);
+            Content = chatGptPostResponse,
+            CreatedOn = DateTime.UtcNow
+        });
+
+        await _context.SaveChangesAsync();
 
         Logger.TraceExit();
     }
@@ -58,30 +60,27 @@ public class PostsGeneratorBackgroundJob : AbstractBackgroundJob<PostsGeneratorB
         Logger.TraceEnter(argument: text);
 
         var chatGptQueryResponse = await _chatGptClient.SendMessage($"What this text is about in two English words: {text}");
-
         var query = HttpUtility.UrlEncode(chatGptQueryResponse.Replace(".", ""));
 
         var unsplashResponse = await _unsplashClient.GetImageUrl(query);
         if (unsplashResponse.IsFailed)
         {
-            _publicationsCache.AddPublication(new PublicationModel
+            _context.Add(new PublicationEntity
             {
                 Content = text,
-                Delay = Delay
-            }, 
-            DelayBetweenPosts);
+                CreatedOn = DateTime.UtcNow
+            });
 
             Logger.TraceError($"Unsplash returned error {unsplashResponse.Errors.First().Message}");
             return;
         }
 
-        _publicationsCache.AddPublication(new PublicationModel
+        _context.Add(new PublicationEntity
         {
             Content = text,
             Image = unsplashResponse.Value,
-            Delay = Delay
-        }, 
-        DelayBetweenPosts);
+            CreatedOn = DateTime.UtcNow
+        });
 
         Logger.TraceExit();
     }

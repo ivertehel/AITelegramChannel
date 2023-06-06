@@ -1,5 +1,7 @@
+using AiTelegramChannel.ServerHost.Cache;
 using AiTelegramChannel.ServerHost.Extensions;
 using MediatR;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.OpenApi.Models;
 using NLog.Extensions.Logging;
 using NLog.Web;
@@ -45,6 +47,12 @@ public class Program
             logging.ClearProviders();
             logging.SetMinimumLevel(LogLevel.Trace);
         }).UseNLog();
+
+        builder.Services.AddDbContext<InMemoryContext>(options =>
+        {
+            options.UseInMemoryDatabase("InMemoryDb")
+                .EnableSensitiveDataLogging();
+        });
 
         var app = builder.Build();
 

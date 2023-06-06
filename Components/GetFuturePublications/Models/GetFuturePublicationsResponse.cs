@@ -10,8 +10,6 @@ public class GetFuturePublicationsResponse
 
 public class GetFuturePublicationsResponseModel
 {
-    public TimeOnly? PublishTime { get; set; }
-
     public string Content { get; set; }
 
     public string Image { get; set; }
